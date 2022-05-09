@@ -7,6 +7,6 @@ namespace ParcelOrders.Services
     {
         public decimal TotalCost => ParcelResults.Sum(x => x.Cost);
 
-        public List<ParcelResult> ParcelResults { get; } = new List<ParcelResult>();
+        public List<OrderItem> ParcelResults { get; } = new List<OrderItem>();
     }
 }
