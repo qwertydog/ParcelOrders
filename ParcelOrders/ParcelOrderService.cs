@@ -1,5 +1,5 @@
 ﻿using ParcelOrders.Services;
-using System.Collections.Generic;
+using System.Linq;
 
 namespace ParcelOrders
 {
@@ -10,39 +10,47 @@ namespace ParcelOrders
         private const decimal LargeParcelCost = 15;
         private const decimal ExtraLargeParcelCost = 25;
 
-        public ParcelOrderResult CalculateCost(List<ParcelDimensions> parcelOrder)
+        public ParcelOrderResult CalculateCost(ParcelOrder parcelOrder)
         {
             var result = new ParcelOrderResult();
 
-            foreach (var parcelDimensions in parcelOrder)
+            foreach (var parcelDimensions in parcelOrder.ParcelsDimensions)
             {
-                var parcelResult = new ParcelResult
-                {
-                    ParcelDimensions = parcelDimensions
-                };
+                var parcelResult = new ParcelResult();
 
                 if (parcelDimensions.AreAllDimensionsWithin(10))
                 {
-                    parcelResult.ParcelCategory = ParcelCategory.Small;
+                    parcelResult.OrderItemCategory = OrderItemCategory.SmallParcel;
                     parcelResult.Cost = SmallParcelCost;
                 }
                 else if (parcelDimensions.AreAllDimensionsWithin(50))
                 {
-                    parcelResult.ParcelCategory = ParcelCategory.Medium;
+                    parcelResult.OrderItemCategory = OrderItemCategory.MediumParcel;
                     parcelResult.Cost = MediumParcelCost;
                 }
                 else if (parcelDimensions.AreAllDimensionsWithin(100))
                 {
-                    parcelResult.ParcelCategory = ParcelCategory.Large;
+                    parcelResult.OrderItemCategory = OrderItemCategory.LargeParcel;
                     parcelResult.Cost = LargeParcelCost;
                 }
                 else
                 {
-                    parcelResult.ParcelCategory = ParcelCategory.ExtraLarge;
+                    parcelResult.OrderItemCategory = OrderItemCategory.ExtraLargeParcel;
                     parcelResult.Cost = ExtraLargeParcelCost;
                 }
 
                 result.ParcelResults.Add(parcelResult);
+            }
+
+            var parcelsCost = result.ParcelResults.Sum(x => x.Cost);
+
+            if (parcelOrder.IsSpeedyShipping)
+            {
+                result.ParcelResults.Add(new ParcelResult
+                {
+                    OrderItemCategory = OrderItemCategory.SpeedyShipping,
+                    Cost = parcelsCost
+                });
             }
 
             return result;
